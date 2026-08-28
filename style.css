@@ -1,0 +1,556 @@
+```css
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+
+  /* BACKGROUND UTAMA */
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.62),
+      rgba(255, 255, 255, 0.62)
+    ),
+    url("baground.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  min-height: 100vh;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.page {
+  min-height: 100vh;
+}
+
+
+/* ================================
+   HALAMAN LOGIN
+================================ */
+
+#loginPage {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.35),
+      rgba(255, 255, 255, 0.35)
+    ),
+    url("baground.jpg");
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+
+  background-attachment: fixed;
+}
+
+
+/* ================================
+   HALAMAN UTAMA
+================================ */
+
+#appPage {
+  min-height: 100vh;
+
+  position: relative;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.62),
+      rgba(255, 255, 255, 0.62)
+    ),
+    url("baground.jpg");
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+
+  background-attachment: fixed;
+}
+
+
+/* ================================
+   LOGIN BOX
+================================ */
+
+.login-box {
+  width: 100%;
+
+  max-width: 390px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  padding: 30px;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 25px rgba(0, 0, 0, 0.20);
+
+  text-align: center;
+}
+
+
+/* ================================
+   LOGO LOGIN
+================================ */
+
+.logo {
+  width: 110px;
+
+  height: 110px;
+
+  margin: 0 auto 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.logo img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+/* ================================
+   JUDUL LOGIN
+================================ */
+
+.login-box h1 {
+  margin: 5px 0;
+
+  font-size: 22px;
+}
+
+.login-box p {
+  color: #6b7280;
+
+  margin-bottom: 25px;
+}
+
+
+/* ================================
+   INPUT
+================================ */
+
+input {
+  width: 100%;
+
+  padding: 13px;
+
+  margin-bottom: 12px;
+
+  border:
+    1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+
+  background: rgba(255, 255, 255, 0.95);
+}
+
+input:focus {
+  outline: none;
+
+  border-color: #2563eb;
+}
+
+
+/* ================================
+   BUTTON
+================================ */
+
+button {
+  border: 0;
+
+  border-radius: 8px;
+
+  padding: 10px 14px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+
+/* ================================
+   LOGIN BUTTON
+================================ */
+
+.login-box button {
+  width: 100%;
+
+  background: #2563eb;
+
+  color: white;
+}
+
+
+/* ================================
+   PESAN LOGIN
+================================ */
+
+#pesan {
+  margin-top: 12px;
+
+  color: #dc2626;
+}
+
+.login-box small {
+  display: block;
+
+  margin-top: 20px;
+
+  color: #9ca3af;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+header {
+  background: rgba(255, 255, 255, 0.94);
+
+  padding: 12px 20px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.12);
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 10;
+}
+
+.header-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.header-logo {
+  width: 45px;
+
+  height: 45px;
+}
+
+.header-logo img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+}
+
+header h2 {
+  margin: 0;
+
+  font-size: 19px;
+}
+
+header span {
+  font-size: 12px;
+
+  color: #6b7280;
+}
+
+.header-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.backup-button {
+  background: #2563eb;
+
+  color: white;
+}
+
+.logout {
+  background: #ef4444;
+
+  color: white;
+}
+
+
+/* ================================
+   MAIN
+================================ */
+
+main {
+  width: 100%;
+
+  max-width: 900px;
+
+  margin: auto;
+
+  padding: 20px;
+}
+
+
+/* ================================
+   SEARCH
+================================ */
+
+.search-box {
+  margin-bottom: 20px;
+}
+
+
+/* ================================
+   KATEGORI
+================================ */
+
+.kategori {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.kategori button {
+  background: rgba(255, 255, 255, 0.94);
+
+  min-height: 80px;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.12);
+
+  font-size: 24px;
+}
+
+.kategori strong {
+  display: block;
+
+  font-size: 14px;
+
+  margin-top: 8px;
+}
+
+
+/* ================================
+   UPLOAD
+================================ */
+
+.upload-area,
+.daftar {
+  background: rgba(255, 255, 255, 0.94);
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.upload-area h3,
+.daftar h3 {
+  margin-top: 0;
+}
+
+.upload-area button {
+  width: 100%;
+
+  background: #16a34a;
+
+  color: white;
+}
+
+#uploadStatus {
+  margin-top: 12px;
+
+  font-size: 14px;
+}
+
+
+/* ================================
+   DOKUMEN
+================================ */
+
+.document-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 15px;
+
+  margin-bottom: 10px;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius: 10px;
+
+  background: rgba(250, 250, 250, 0.95);
+}
+
+.document-item strong {
+  display: block;
+
+  font-size: 15px;
+}
+
+.document-item small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+.document-item button {
+  margin-left: 4px;
+
+  background: #eeeeee;
+}
+
+.document-item button:hover {
+  opacity: 0.8;
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 0;
+  }
+
+  #appPage {
+    background-attachment: scroll;
+  }
+
+  #loginPage {
+    background-attachment: scroll;
+  }
+
+  header {
+    padding: 10px 12px;
+
+    align-items: flex-start;
+  }
+
+  header h2 {
+    font-size: 16px;
+  }
+
+  .header-logo {
+    width: 38px;
+
+    height: 38px;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .header-buttons button {
+    font-size: 12px;
+
+    padding: 8px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .kategori {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .document-item {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .document-item button {
+    margin-top: 5px;
+
+    margin-left: 0;
+  }
+
+  .logo {
+    width: 90px;
+
+    height: 90px;
+
+    margin-bottom: 12px;
+  }
+
+  .login-box {
+    padding: 25px 20px;
+  }
+
+}
+```

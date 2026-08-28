@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Arsip Desa Tamban Baru Timur</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- SUPABASE -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- JSZIP UNTUK BACKUP -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+</head>
+
+<body>
+
+  <!-- ================================
+       HALAMAN LOGIN
+  ================================= -->
+
+  <div id="loginPage" class="page">
+
+```
+<div class="login-box">
+
+  <div class="logo">
+    <img src="logo.png" alt="Logo Desa">
+  </div>
+
+  <h1>ARSIP DESA</h1>
+  <h1>TAMBAN BARU TIMUR</h1>
+
+  <p>Sistem Arsip Dokumen Desa</p>
+
+  <input
+    type="email"
+    id="email"
+    placeholder="Email"
+    autocomplete="email"
+  >
+
+  <input
+    type="password"
+    id="password"
+    placeholder="Password"
+    autocomplete="current-password"
+  >
+
+  <button onclick="login()">
+    MASUK
+  </button>
+
+  <div id="pesan"></div>
+
+  <small>
+    Pemerintah Desa Tamban Baru Timur
+  </small>
+
+</div>
+```
+
+  </div>
+
+  <!-- ================================
+       HALAMAN UTAMA
+  ================================= -->
+
+  <div id="appPage" class="page hidden">
+
+```
+<header>
+
+  <div class="header-title">
+
+    <div class="header-logo">
+      <img src="logo.png" alt="Logo Desa">
+    </div>
+
+    <div>
+      <h2>ARSIP DESA</h2>
+      <span>TAMBAN BARU TIMUR</span>
+    </div>
+
+  </div>
+
+  <div class="header-buttons">
+
+    <button
+      class="backup-button"
+      onclick="backupArsip()"
+    >
+      📦 Backup Arsip
+    </button>
+
+    <button
+      class="logout"
+      onclick="logout()"
+    >
+      Keluar
+    </button>
+
+  </div>
+
+</header>
+
+
+<main>
+
+  <!-- PENCARIAN -->
+
+  <div class="search-box">
+
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="🔍 Cari nama dokumen..."
+      oninput="cariDokumen()"
+    >
+
+  </div>
+
+
+  <!-- KATEGORI -->
+
+  <div class="kategori">
+
+    <button onclick="tampilkanDokumen()">
+      📁 <strong>Semua</strong>
+    </button>
+
+    <button onclick="tampilkanKategori('Word')">
+      📄 <strong>Word</strong>
+    </button>
+
+    <button onclick="tampilkanKategori('Excel')">
+      📊 <strong>Excel</strong>
+    </button>
+
+    <button onclick="tampilkanKategori('PDF')">
+      📕 <strong>PDF</strong>
+    </button>
+
+    <button onclick="tampilkanKategori('Foto Dokumentasi')">
+      📷 <strong>Foto</strong>
+    </button>
+
+  </div>
+
+
+  <!-- UPLOAD -->
+
+  <div class="upload-area">
+
+    <h3>Upload Dokumen</h3>
+
+    <input
+      type="text"
+      id="namaDokumen"
+      placeholder="Nama dokumen"
+    >
+
+    <input
+      type="file"
+      id="fileInput"
+      accept=".doc,.docx,.xls,.xlsx,.pdf,.jpg,.jpeg,.png"
+    >
+
+    <button onclick="uploadDokumen()">
+      ＋ UPLOAD DOKUMEN
+    </button>
+
+    <div id="uploadStatus"></div>
+
+  </div>
+
+
+  <!-- DAFTAR DOKUMEN -->
+
+  <div class="daftar">
+
+    <h3>Daftar Dokumen</h3>
+
+    <div id="documentList">
+      Memuat dokumen...
+    </div>
+
+  </div>
+
+</main>
+```
+
+  </div>
+
+  <!-- JAVASCRIPT APLIKASI -->
+
+  <!-- app.js HARUS paling bawah -->
+
+  <script src="app.js"></script>
+
+</body>
+</html>
