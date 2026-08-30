@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="id">
 
 <head>
@@ -11,198 +10,211 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- SUPABASE -->
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- JSZIP UNTUK BACKUP -->
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 </head>
 
 <body>
 
-  <!-- ================================
+  <!-- =================================
        HALAMAN LOGIN
-  ================================= -->
+  ================================== -->
 
   <div id="loginPage" class="page">
 
-```
-<div class="login-box">
+    <div class="login-box">
 
-  <div class="logo">
-    <img src="logo.png" alt="Logo Desa">
+      <!-- LOGO DESA -->
+      <div class="logo">
+        <img src="logo.png" alt="Logo Desa">
+      </div>
+
+      <!-- JUDUL -->
+      <h1>E-ARSIP DIGITAL DESA</h1>
+
+      <!-- LOGIN -->
+      <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        autocomplete="email"
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+      <!-- TOMBOL MASUK -->
+      <button onclick="login()">
+        MASUK
+      </button>
+
+      <!-- PESAN LOGIN -->
+      <div id="pesan"></div>
+
+      <!-- KETERANGAN -->
+      <small class="keterangan">
+        Pemerintah Desa Tamban Baru Timur<br>
+        Kecamatan Tamban Catur Kabupaten Kapuas Provinsi Kalimantan Tengah
+      </small>
+
+    </div>
+
   </div>
 
-  <h1>E-ARSIP DIGITAL DESA</h1>
-  <h1>TAMBAN BARU TIMUR</h1>
 
-
-  <input
-    type="email"
-    id="email"
-    placeholder="Email"
-    autocomplete="email"
-  >
-
-  <input
-    type="password"
-    id="password"
-    placeholder="Password"
-    autocomplete="current-password"
-  >
-
-  <button onclick="login()">
-    MASUK
-  </button>
-
-  <div id="pesan"></div>
-
-  <small>
-    Pemerintah Desa Tamban Baru Timur Kecamatan Tamban Catur Kabupaten Kapuas Provinsi Kaliman Tengah
-  </small>
-
-</div>
-```
-
-  </div>
-
-  <!-- ================================
+  <!-- =================================
        HALAMAN UTAMA
-  ================================= -->
+  ================================== -->
 
   <div id="appPage" class="page hidden">
 
-```
-<header>
+    <!-- HEADER -->
+    <header>
 
-  <div class="header-title">
+      <div class="header-title">
 
-    <div class="header-logo">
-      <img src="logo.png" alt="Logo Desa">
-    </div>
+        <div class="header-logo">
+          <img src="logo.png" alt="Logo Desa">
+        </div>
 
-    <div>
-      <h2>ARSIP DESA</h2>
-      <span>TAMBAN BARU TIMUR</span>
-    </div>
+        <div>
+          <h2>ARSIP DESA</h2>
+          <span>TAMBAN BARU TIMUR</span>
+        </div>
+
+      </div>
+
+
+      <!-- TOMBOL HEADER -->
+      <div class="header-buttons">
+
+        <button
+          class="backup-button"
+          onclick="backupArsip()"
+        >
+          📦 Backup Arsip
+        </button>
+
+        <button
+          class="logout"
+          onclick="logout()"
+        >
+          Keluar
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- KONTEN UTAMA -->
+    <main>
+
+      <!-- =============================
+           PENCARIAN
+      ============================== -->
+
+      <div class="search-box">
+
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="🔍 Cari nama dokumen..."
+          oninput="cariDokumen()"
+        >
+
+      </div>
+
+
+      <!-- =============================
+           KATEGORI
+      ============================== -->
+
+      <div class="kategori">
+
+        <button onclick="tampilkanDokumen()">
+          📁 <strong>Semua</strong>
+        </button>
+
+        <button onclick="tampilkanKategori('Word')">
+          📄 <strong>Word</strong>
+        </button>
+
+        <button onclick="tampilkanKategori('Excel')">
+          📊 <strong>Excel</strong>
+        </button>
+
+        <button onclick="tampilkanKategori('PDF')">
+          📕 <strong>PDF</strong>
+        </button>
+
+        <button onclick="tampilkanKategori('Foto Dokumentasi')">
+          📷 <strong>Foto</strong>
+        </button>
+
+      </div>
+
+
+      <!-- =============================
+           UPLOAD DOKUMEN
+      ============================== -->
+
+      <div class="upload-area">
+
+        <h3>Upload Dokumen</h3>
+
+        <input
+          type="text"
+          id="namaDokumen"
+          placeholder="Nama dokumen"
+        >
+
+        <input
+          type="file"
+          id="fileInput"
+          accept=".doc,.docx,.xls,.xlsx,.pdf,.jpg,.jpeg,.png"
+        >
+
+        <button onclick="uploadDokumen()">
+          ＋ UPLOAD DOKUMEN
+        </button>
+
+        <div id="uploadStatus"></div>
+
+      </div>
+
+
+      <!-- =============================
+           DAFTAR DOKUMEN
+      ============================== -->
+
+      <div class="daftar">
+
+        <h3>Daftar Dokumen</h3>
+
+        <div id="documentList">
+          Memuat dokumen...
+        </div>
+
+      </div>
+
+    </main>
 
   </div>
 
-  <div class="header-buttons">
 
-    <button
-      class="backup-button"
-      onclick="backupArsip()"
-    >
-      📦 Backup Arsip
-    </button>
-
-    <button
-      class="logout"
-      onclick="logout()"
-    >
-      Keluar
-    </button>
-
-  </div>
-
-</header>
-
-
-<main>
-
-  <!-- PENCARIAN -->
-
-  <div class="search-box">
-
-    <input
-      type="search"
-      id="searchInput"
-      placeholder="🔍 Cari nama dokumen..."
-      oninput="cariDokumen()"
-    >
-
-  </div>
-
-
-  <!-- KATEGORI -->
-
-  <div class="kategori">
-
-    <button onclick="tampilkanDokumen()">
-      📁 <strong>Semua</strong>
-    </button>
-
-    <button onclick="tampilkanKategori('Word')">
-      📄 <strong>Word</strong>
-    </button>
-
-    <button onclick="tampilkanKategori('Excel')">
-      📊 <strong>Excel</strong>
-    </button>
-
-    <button onclick="tampilkanKategori('PDF')">
-      📕 <strong>PDF</strong>
-    </button>
-
-    <button onclick="tampilkanKategori('Foto Dokumentasi')">
-      📷 <strong>Foto</strong>
-    </button>
-
-  </div>
-
-
-  <!-- UPLOAD -->
-
-  <div class="upload-area">
-
-    <h3>Upload Dokumen</h3>
-
-    <input
-      type="text"
-      id="namaDokumen"
-      placeholder="Nama dokumen"
-    >
-
-    <input
-      type="file"
-      id="fileInput"
-      accept=".doc,.docx,.xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-    >
-
-    <button onclick="uploadDokumen()">
-      ＋ UPLOAD DOKUMEN
-    </button>
-
-    <div id="uploadStatus"></div>
-
-  </div>
-
-
-  <!-- DAFTAR DOKUMEN -->
-
-  <div class="daftar">
-
-    <h3>Daftar Dokumen</h3>
-
-    <div id="documentList">
-      Memuat dokumen...
-    </div>
-
-  </div>
-
-</main>
-```
-
-  </div>
-
-  <!-- JAVASCRIPT APLIKASI -->
-
-  <!-- app.js HARUS paling bawah -->
+  <!-- =================================
+       JAVASCRIPT APLIKASI
+  ================================== -->
 
   <script src="app.js"></script>
 
 </body>
+
 </html>
