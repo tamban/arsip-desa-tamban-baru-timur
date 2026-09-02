@@ -1,4 +1,12 @@
 // ========================================
+// GOOGLE DRIVE API
+// ========================================
+
+const GOOGLE_DRIVE_API =
+  "https://script.google.com/macros/s/AKfycbz8f5hAhgZePLPuwvW6Aybca4huCUgrK1eVhPlgqZ0FpSI6VirR7O3LWCgaD_Gi3Cowgw/exec";
+
+
+// ========================================
 // KONEKSI SUPABASE
 // ========================================
 
@@ -6,7 +14,7 @@ const SUPABASE_URL =
   "https://cakrhepxmgzfepeizeqs.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_yfwobeRSxWKwrJSmxy4CWA_v9cbhwOe";
+  "sb_publishable_yfwobeRSxWKwrJSMxy4CWA_v9cbhwOe";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -19,12 +27,9 @@ const supabaseClient =
 // PENGATURAN AKUN
 // ========================================
 
-// Email akun PETUGAS
 const EMAIL_PETUGAS =
   "tbtmr5757@gmail.com";
 
-
-// Menyimpan status pengguna yang sedang login
 let penggunaSekarang = null;
 
 let rolePengguna = "";
@@ -46,7 +51,6 @@ function tentukanRole(email) {
 
   }
 
-  // Selain email petugas dianggap ADMIN
   return "admin";
 }
 
@@ -86,13 +90,16 @@ async function login() {
   try {
 
     const hasil =
-      await supabaseClient.auth.signInWithPassword({
+      await supabaseClient.auth
+        .signInWithPassword({
 
-        email: email,
+          email:
+            email,
 
-        password: password
+          password:
+            password
 
-      });
+        });
 
 
     if (hasil.error) {
@@ -110,6 +117,7 @@ async function login() {
 
     penggunaSekarang =
       hasil.data.user;
+
 
     rolePengguna =
       tentukanRole(
@@ -138,12 +146,15 @@ async function login() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     pesan.textContent =
       "Terjadi kesalahan saat login.";
 
   }
+
 }
 
 
@@ -153,7 +164,17 @@ async function login() {
 
 async function logout() {
 
-  await supabaseClient.auth.signOut();
+  try {
+
+    await supabaseClient.auth.signOut();
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+  }
 
 
   penggunaSekarang = null;
@@ -192,7 +213,8 @@ async function cekLogin() {
   try {
 
     const hasil =
-      await supabaseClient.auth.getSession();
+      await supabaseClient.auth
+        .getSession();
 
 
     if (
@@ -230,7 +252,6 @@ async function cekLogin() {
 
     }
 
-
   } catch (error) {
 
     console.error(
@@ -239,6 +260,7 @@ async function cekLogin() {
     );
 
   }
+
 }
 
 
@@ -297,6 +319,227 @@ function tentukanFolder(file) {
 
 
 // ========================================
+// FILE KE BASE64
+// ========================================
+
+function fileKeBase64(file) {
+
+  return new Promise(
+    function(resolve, reject) {
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function() {
+
+          try {
+
+            const hasil =
+              reader.result;
+
+
+            const posisi =
+              hasil.indexOf(",");
+
+
+            if (
+              posisi === -1
+            ) {
+
+              reject(
+                new Error(
+                  "Format file tidak valid."
+                )
+              );
+
+              return;
+            }
+
+
+            const base64 =
+              hasil.substring(
+                posisi + 1
+              );
+
+
+            resolve(
+              base64
+            );
+
+          } catch (error) {
+
+            reject(
+              error
+            );
+
+          }
+
+        };
+
+
+      reader.onerror =
+        function() {
+
+          reject(
+            new Error(
+              "Gagal membaca file."
+            )
+          );
+
+        };
+
+
+      reader.readAsDataURL(
+        file
+      );
+
+    }
+  );
+
+}
+
+
+// ========================================
+// UPLOAD KE GOOGLE DRIVE
+// ========================================
+
+async function uploadKeGoogleDrive(
+  file,
+  folder
+) {
+
+  console.log(
+    "📤 Mulai upload ke Google Drive..."
+  );
+
+
+  console.log(
+    "Nama:",
+    file.name
+  );
+
+
+  console.log(
+    "Folder:",
+    folder
+  );
+
+
+  // --------------------------------------
+  // UBAH FILE KE BASE64
+  // --------------------------------------
+
+  const base64 =
+    await fileKeBase64(
+      file
+    );
+
+
+  const data = {
+
+    action:
+      "upload",
+
+    folder:
+      folder,
+
+    fileName:
+      file.name,
+
+    fileType:
+      file.type ||
+      "application/octet-stream",
+
+    file:
+      base64
+
+  };
+
+
+  console.log(
+    "📦 Data siap dikirim."
+  );
+
+
+  // --------------------------------------
+  // KIRIM KE GOOGLE APPS SCRIPT
+  // --------------------------------------
+
+  try {
+
+    await fetch(
+      GOOGLE_DRIVE_API,
+      {
+
+        method:
+          "POST",
+
+        mode:
+          "no-cors",
+
+        headers: {
+
+          "Content-Type":
+            "text/plain;charset=utf-8"
+
+        },
+
+        body:
+          JSON.stringify(
+            data
+          )
+
+      }
+    );
+
+
+    console.log(
+      "✅ Permintaan upload dikirim ke Google Drive."
+    );
+
+
+    // ------------------------------------
+    // Karena no-cors, browser tidak bisa
+    // membaca respons dari Apps Script.
+    // ------------------------------------
+
+    return {
+
+      success:
+        true,
+
+      fileId:
+        null,
+
+      fileName:
+        file.name,
+
+      folder:
+        folder
+
+    };
+
+
+  } catch (error) {
+
+    console.error(
+      "❌ Google Drive error:",
+      error
+    );
+
+
+    throw new Error(
+      "Gagal mengirim file ke Google Drive."
+    );
+
+  }
+
+}
+
+
+// ========================================
 // UPLOAD DOKUMEN
 // ========================================
 
@@ -328,14 +571,23 @@ async function uploadDokumen() {
   status.textContent = "";
 
 
+  // --------------------------------------
+  // VALIDASI NAMA
+  // --------------------------------------
+
   if (!namaDokumen) {
 
     status.textContent =
       "Silakan isi nama dokumen.";
 
     return;
+
   }
 
+
+  // --------------------------------------
+  // VALIDASI FILE
+  // --------------------------------------
 
   if (!file) {
 
@@ -343,23 +595,35 @@ async function uploadDokumen() {
       "Silakan pilih file.";
 
     return;
+
   }
 
+
+  // --------------------------------------
+  // BATAS 5 MB UNTUK TES
+  // --------------------------------------
 
   if (
     file.size >
-    50 * 1024 * 1024
+    5 * 1024 * 1024
   ) {
 
     status.textContent =
-      "Ukuran file maksimal 50 MB.";
+      "Ukuran file maksimal 5 MB untuk pengujian.";
 
     return;
+
   }
 
 
+  // --------------------------------------
+  // TENTUKAN FOLDER
+  // --------------------------------------
+
   const folder =
-    tentukanFolder(file);
+    tentukanFolder(
+      file
+    );
 
 
   if (!folder) {
@@ -368,53 +632,36 @@ async function uploadDokumen() {
       "Jenis file tidak didukung.";
 
     return;
+
   }
 
 
   status.textContent =
-    "Sedang mengupload...";
+    "⏳ Mengupload ke Google Drive...";
 
 
   try {
 
-    const namaUnik =
-      Date.now() +
-      "_" +
-      file.name;
+    // ====================================
+    // GOOGLE DRIVE
+    // ====================================
 
-
-    const filePath =
-      folder +
-      "/" +
-      namaUnik;
-
-
-    // UPLOAD KE STORAGE
-
-    const upload =
-      await supabaseClient.storage
-        .from("Dokumen")
-        .upload(
-          filePath,
-          file
-        );
-
-
-    if (upload.error) {
-
-      console.error(
-        upload.error
+    const drive =
+      await uploadKeGoogleDrive(
+        file,
+        folder
       );
 
-      status.textContent =
-        "Upload gagal: " +
-        upload.error.message;
 
-      return;
-    }
+    console.log(
+      "Hasil Google Drive:",
+      drive
+    );
 
 
-    // SIMPAN KE DATABASE
+    // ====================================
+    // SIMPAN DATA KE SUPABASE
+    // ====================================
 
     const database =
       await supabaseClient
@@ -431,7 +678,8 @@ async function uploadDokumen() {
             file.name,
 
           file_path:
-            filePath,
+            "gdrive:pending:" +
+            Date.now(),
 
           file_type:
             file.type
@@ -439,22 +687,30 @@ async function uploadDokumen() {
         });
 
 
-    if (database.error) {
+    if (
+      database.error
+    ) {
 
       console.error(
         database.error
       );
 
+
       status.textContent =
-        "File sudah terupload, tetapi data gagal disimpan.";
+        "⚠️ File dikirim ke Google Drive, tetapi data gagal disimpan.";
 
       return;
+
     }
 
 
     status.textContent =
-      "✅ Dokumen berhasil diupload.";
+      "✅ Dokumen berhasil dikirim ke Google Drive.";
 
+
+    // ------------------------------------
+    // BERSIHKAN FORM
+    // ------------------------------------
 
     document
       .getElementById(
@@ -475,12 +731,17 @@ async function uploadDokumen() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     status.textContent =
-      "Terjadi kesalahan saat upload.";
+      "❌ Upload gagal: " +
+      error.message;
 
   }
+
 }
 
 
@@ -490,21 +751,27 @@ async function uploadDokumen() {
 
 function ambilIcon(folder) {
 
-  if (folder === "Word") {
+  if (
+    folder === "Word"
+  ) {
 
     return "📄";
 
   }
 
 
-  if (folder === "Excel") {
+  if (
+    folder === "Excel"
+  ) {
 
     return "📊";
 
   }
 
 
-  if (folder === "PDF") {
+  if (
+    folder === "PDF"
+  ) {
 
     return "📕";
 
@@ -512,8 +779,7 @@ function ambilIcon(folder) {
 
 
   if (
-    folder ===
-    "Foto Dokumentasi"
+    folder === "Foto Dokumentasi"
   ) {
 
     return "📷";
@@ -522,6 +788,64 @@ function ambilIcon(folder) {
 
 
   return "📄";
+
+}
+
+
+// ========================================
+// CEK GOOGLE DRIVE
+// ========================================
+
+function apakahGoogleDrive(
+  filePath
+) {
+
+  return (
+    typeof filePath === "string" &&
+    filePath.startsWith(
+      "gdrive:"
+    )
+  );
+
+}
+
+
+// ========================================
+// AMBIL ID GOOGLE DRIVE
+// ========================================
+
+function ambilGoogleDriveId(
+  filePath
+) {
+
+  if (
+    !apakahGoogleDrive(
+      filePath
+    )
+  ) {
+
+    return null;
+
+  }
+
+
+  const bagian =
+    filePath.split(":");
+
+
+  if (
+    bagian.length < 2
+  ) {
+
+    return null;
+
+  }
+
+
+  return bagian
+    .slice(1)
+    .join(":");
+
 }
 
 
@@ -550,21 +874,26 @@ async function tampilkanDokumen() {
         .order(
           "created_at",
           {
-            ascending: false
+            ascending:
+              false
           }
         );
 
 
-    if (hasil.error) {
+    if (
+      hasil.error
+    ) {
 
       console.error(
         hasil.error
       );
 
+
       daftar.innerHTML =
         "<p>Gagal mengambil dokumen.</p>";
 
       return;
+
     }
 
 
@@ -577,6 +906,7 @@ async function tampilkanDokumen() {
         "<p>Belum ada dokumen.</p>";
 
       return;
+
     }
 
 
@@ -587,12 +917,16 @@ async function tampilkanDokumen() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     daftar.innerHTML =
       "<p>Terjadi kesalahan mengambil dokumen.</p>";
 
   }
+
 }
 
 
@@ -600,7 +934,9 @@ async function tampilkanDokumen() {
 // TAMPILKAN DAFTAR
 // ========================================
 
-function tampilkanDaftar(data) {
+function tampilkanDaftar(
+  data
+) {
 
   const daftar =
     document.getElementById(
@@ -624,9 +960,9 @@ function tampilkanDaftar(data) {
         "document-item";
 
 
-      // ==================================
-      // INFORMASI DOKUMEN
-      // ==================================
+      // ----------------------------------
+      // INFORMASI
+      // ----------------------------------
 
       const info =
         document.createElement(
@@ -670,9 +1006,9 @@ function tampilkanDaftar(data) {
       );
 
 
-      // ==================================
+      // ----------------------------------
       // TOMBOL BUKA
-      // ==================================
+      // ----------------------------------
 
       const tombolBuka =
         document.createElement(
@@ -694,9 +1030,9 @@ function tampilkanDaftar(data) {
         };
 
 
-      // ==================================
+      // ----------------------------------
       // TOMBOL DOWNLOAD
-      // ==================================
+      // ----------------------------------
 
       const tombolDownload =
         document.createElement(
@@ -718,9 +1054,9 @@ function tampilkanDaftar(data) {
         };
 
 
-      // ==================================
+      // ----------------------------------
       // MASUKKAN KE ITEM
-      // ==================================
+      // ----------------------------------
 
       item.appendChild(
         info
@@ -737,10 +1073,9 @@ function tampilkanDaftar(data) {
       );
 
 
-      // ==================================
-      // TOMBOL HAPUS
-      // KHUSUS ADMIN
-      // ==================================
+      // ----------------------------------
+      // TOMBOL HAPUS ADMIN
+      // ----------------------------------
 
       if (
         rolePengguna ===
@@ -781,6 +1116,7 @@ function tampilkanDaftar(data) {
 
     }
   );
+
 }
 
 
@@ -791,6 +1127,53 @@ function tampilkanDaftar(data) {
 async function bukaDokumen(
   filePath
 ) {
+
+  // --------------------------------------
+  // GOOGLE DRIVE
+  // --------------------------------------
+
+  if (
+    apakahGoogleDrive(
+      filePath
+    )
+  ) {
+
+    const fileId =
+      ambilGoogleDriveId(
+        filePath
+      );
+
+
+    if (
+      !fileId ||
+      fileId === "pending"
+    ) {
+
+      alert(
+        "File Google Drive belum memiliki ID yang tersimpan."
+      );
+
+      return;
+
+    }
+
+
+    window.open(
+      "https://drive.google.com/file/d/" +
+      fileId +
+      "/view",
+      "_blank"
+    );
+
+
+    return;
+
+  }
+
+
+  // --------------------------------------
+  // SUPABASE LAMA
+  // --------------------------------------
 
   try {
 
@@ -803,17 +1186,12 @@ async function bukaDokumen(
         );
 
 
-    if (hasil.error) {
+    if (
+      hasil.error
+    ) {
 
-      console.error(
-        hasil.error
-      );
+      throw hasil.error;
 
-      alert(
-        "Dokumen tidak dapat dibuka."
-      );
-
-      return;
     }
 
 
@@ -825,13 +1203,17 @@ async function bukaDokumen(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     alert(
       "Dokumen tidak dapat dibuka."
     );
 
   }
+
 }
 
 
@@ -843,6 +1225,52 @@ async function downloadDokumen(
   filePath
 ) {
 
+  // --------------------------------------
+  // GOOGLE DRIVE
+  // --------------------------------------
+
+  if (
+    apakahGoogleDrive(
+      filePath
+    )
+  ) {
+
+    const fileId =
+      ambilGoogleDriveId(
+        filePath
+      );
+
+
+    if (
+      !fileId ||
+      fileId === "pending"
+    ) {
+
+      alert(
+        "File Google Drive belum memiliki ID yang tersimpan."
+      );
+
+      return;
+
+    }
+
+
+    window.open(
+      "https://drive.google.com/uc?export=download&id=" +
+      fileId,
+      "_blank"
+    );
+
+
+    return;
+
+  }
+
+
+  // --------------------------------------
+  // SUPABASE LAMA
+  // --------------------------------------
+
   try {
 
     const hasil =
@@ -853,17 +1281,12 @@ async function downloadDokumen(
         );
 
 
-    if (hasil.error) {
+    if (
+      hasil.error
+    ) {
 
-      console.error(
-        hasil.error
-      );
+      throw hasil.error;
 
-      alert(
-        "Dokumen tidak dapat didownload."
-      );
-
-      return;
     }
 
 
@@ -914,18 +1337,22 @@ async function downloadDokumen(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     alert(
       "Dokumen tidak dapat didownload."
     );
 
   }
+
 }
 
 
 // ========================================
-// PENCARIAN CEPAT
+// PENCARIAN
 // ========================================
 
 async function cariDokumen() {
@@ -944,6 +1371,7 @@ async function cariDokumen() {
     tampilkanDokumen();
 
     return;
+
   }
 
 
@@ -960,18 +1388,22 @@ async function cariDokumen() {
       .order(
         "created_at",
         {
-          ascending: false
+          ascending:
+            false
         }
       );
 
 
-  if (hasil.error) {
+  if (
+    hasil.error
+  ) {
 
     console.error(
       hasil.error
     );
 
     return;
+
   }
 
 
@@ -990,12 +1422,14 @@ async function cariDokumen() {
       "<p>Dokumen tidak ditemukan.</p>";
 
     return;
+
   }
 
 
   tampilkanDaftar(
     hasil.data
   );
+
 }
 
 
@@ -1018,18 +1452,22 @@ async function tampilkanKategori(
       .order(
         "created_at",
         {
-          ascending: false
+          ascending:
+            false
         }
       );
 
 
-  if (hasil.error) {
+  if (
+    hasil.error
+  ) {
 
     console.error(
       hasil.error
     );
 
     return;
+
   }
 
 
@@ -1048,26 +1486,25 @@ async function tampilkanKategori(
       "<p>Belum ada dokumen di kategori ini.</p>";
 
     return;
+
   }
 
 
   tampilkanDaftar(
     hasil.data
   );
+
 }
 
 
 // ========================================
 // HAPUS DOKUMEN
-// KHUSUS ADMIN
 // ========================================
 
 async function hapusDokumen(
   filePath,
   id
 ) {
-
-  // CEK ROLE
 
   if (
     rolePengguna !==
@@ -1079,6 +1516,7 @@ async function hapusDokumen(
     );
 
     return;
+
   }
 
 
@@ -1091,12 +1529,34 @@ async function hapusDokumen(
   if (!yakin) {
 
     return;
+
   }
 
 
-  try {
+  // --------------------------------------
+  // GOOGLE DRIVE
+  // --------------------------------------
 
-    // HAPUS FILE STORAGE
+  if (
+    apakahGoogleDrive(
+      filePath
+    )
+  ) {
+
+    alert(
+      "File baru Google Drive akan kita aktifkan penghapusannya setelah API Drive lengkap."
+    );
+
+    return;
+
+  }
+
+
+  // --------------------------------------
+  // SUPABASE LAMA
+  // --------------------------------------
+
+  try {
 
     const storage =
       await supabaseClient.storage
@@ -1106,21 +1566,23 @@ async function hapusDokumen(
         ]);
 
 
-    if (storage.error) {
+    if (
+      storage.error
+    ) {
 
       console.error(
         storage.error
       );
+
 
       alert(
         "File gagal dihapus."
       );
 
       return;
+
     }
 
-
-    // HAPUS DATA DATABASE
 
     const database =
       await supabaseClient
@@ -1132,17 +1594,21 @@ async function hapusDokumen(
         );
 
 
-    if (database.error) {
+    if (
+      database.error
+    ) {
 
       console.error(
         database.error
       );
 
+
       alert(
-        "File sudah dihapus dari Storage, tetapi data gagal dihapus."
+        "Data database gagal dihapus."
       );
 
       return;
+
     }
 
 
@@ -1156,13 +1622,17 @@ async function hapusDokumen(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     alert(
       "Terjadi kesalahan saat menghapus dokumen."
     );
 
   }
+
 }
 
 
@@ -1172,42 +1642,38 @@ async function hapusDokumen(
 
 async function backupArsip() {
 
-  // CEK JSZIP
-
   if (
     typeof JSZip ===
     "undefined"
   ) {
 
     alert(
-      "Library ZIP belum tersedia.\n\n" +
-      "Periksa JSZip di index.html."
+      "Library ZIP belum tersedia."
     );
 
     return;
+
   }
 
 
-  // PILIH TAHUN
-
   const tahun =
     prompt(
-      "Masukkan tahun arsip yang ingin dibackup:\n\n" +
-      "Contoh: 2025"
+      "Masukkan tahun arsip yang ingin dibackup:\n\nContoh: 2025"
     );
 
 
-  if (tahun === null) {
+  if (
+    tahun === null
+  ) {
 
     return;
+
   }
 
 
   const tahunBersih =
     tahun.trim();
 
-
-  // CEK TAHUN
 
   if (
     !/^\d{4}$/.test(
@@ -1216,18 +1682,17 @@ async function backupArsip() {
   ) {
 
     alert(
-      "Tahun harus 4 angka.\n\n" +
-      "Contoh: 2025"
+      "Tahun harus 4 angka."
     );
 
     return;
+
   }
 
 
-  // PILIH JENIS BACKUP
-
   const pilihan =
     prompt(
+
       "JENIS BACKUP:\n\n" +
 
       "1 = Semua Arsip\n" +
@@ -1237,6 +1702,7 @@ async function backupArsip() {
       "5 = Excel Saja\n\n" +
 
       "Masukkan angka 1 - 5:"
+
     );
 
 
@@ -1245,10 +1711,9 @@ async function backupArsip() {
   ) {
 
     return;
+
   }
 
-
-  // TENTUKAN KATEGORI
 
   let folderBackup =
     null;
@@ -1275,7 +1740,6 @@ async function backupArsip() {
 
   }
 
-
   else if (
     pilihan === "3"
   ) {
@@ -1290,7 +1754,6 @@ async function backupArsip() {
       "PDF Saja";
 
   }
-
 
   else if (
     pilihan === "4"
@@ -1307,7 +1770,6 @@ async function backupArsip() {
 
   }
 
-
   else if (
     pilihan === "5"
   ) {
@@ -1323,7 +1785,6 @@ async function backupArsip() {
 
   }
 
-
   else if (
     pilihan !== "1"
   ) {
@@ -1333,10 +1794,9 @@ async function backupArsip() {
     );
 
     return;
+
   }
 
-
-  // AMBIL DATA DATABASE
 
   let query =
     supabaseClient
@@ -1348,8 +1808,6 @@ async function backupArsip() {
         "_%"
       );
 
-
-  // FILTER JENIS
 
   if (
     folderBackup !==
@@ -1369,12 +1827,11 @@ async function backupArsip() {
     await query.order(
       "created_at",
       {
-        ascending: true
+        ascending:
+          true
       }
     );
 
-
-  // CEK ERROR
 
   if (
     hasil.error
@@ -1389,10 +1846,9 @@ async function backupArsip() {
     );
 
     return;
+
   }
 
-
-  // CEK DATA KOSONG
 
   if (
     !hasil.data ||
@@ -1400,22 +1856,15 @@ async function backupArsip() {
   ) {
 
     alert(
-      "Tidak ditemukan " +
-      jenisBackup.toLowerCase() +
-      " tahun " +
+      "Tidak ditemukan arsip tahun " +
       tahunBersih +
-      ".\n\n" +
-
-      "Pastikan nama dokumen diawali:\n" +
-      tahunBersih +
-      "_"
+      "."
     );
 
     return;
+
   }
 
-
-  // KONFIRMASI
 
   const lanjut =
     confirm(
@@ -1432,7 +1881,9 @@ async function backupArsip() {
       jenisBackup +
       "\n\n" +
 
-      "Apakah ingin membuat file ZIP?"
+      "Backup Google Drive akan kita aktifkan pada tahap berikutnya.\n\n" +
+
+      "Lanjut?"
 
     );
 
@@ -1440,175 +1891,14 @@ async function backupArsip() {
   if (!lanjut) {
 
     return;
+
   }
 
 
-  // BUAT ZIP
+  alert(
+    "Fungsi backup Google Drive belum diaktifkan pada tahap ini."
+  );
 
-  const zip =
-    new JSZip();
-
-
-  let berhasil =
-    0;
-
-
-  // MASUKKAN FILE
-
-  for (
-    let i = 0;
-    i < hasil.data.length;
-    i++
-  ) {
-
-    const doc =
-      hasil.data[i];
-
-
-    try {
-
-      const fileHasil =
-        await supabaseClient.storage
-          .from("Dokumen")
-          .download(
-            doc.file_path
-          );
-
-
-      if (
-        fileHasil.error
-      ) {
-
-        console.error(
-          fileHasil.error
-        );
-
-        continue;
-      }
-
-
-      zip.file(
-        doc.file_name,
-        fileHasil.data
-      );
-
-
-      berhasil++;
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-    }
-  }
-
-
-  // TIDAK ADA FILE
-
-  if (
-    berhasil === 0
-  ) {
-
-    alert(
-      "Tidak ada file yang berhasil dimasukkan ke ZIP."
-    );
-
-    return;
-  }
-
-
-  // BUAT FILE ZIP
-
-  try {
-
-    const zipBlob =
-      await zip.generateAsync({
-
-        type:
-          "blob"
-
-      });
-
-
-    const url =
-      URL.createObjectURL(
-        zipBlob
-      );
-
-
-    const a =
-      document.createElement(
-        "a"
-      );
-
-
-    a.href =
-      url;
-
-
-    a.download =
-      "Backup_" +
-      namaBackup +
-      "_" +
-      tahunBersih +
-      ".zip";
-
-
-    document.body.appendChild(
-      a
-    );
-
-
-    a.click();
-
-
-    a.remove();
-
-
-    setTimeout(
-      function() {
-
-        URL.revokeObjectURL(
-          url
-        );
-
-      },
-      1000
-    );
-
-
-    alert(
-
-      "✅ Backup berhasil!\n\n" +
-
-      "Tahun: " +
-      tahunBersih +
-      "\n" +
-
-      "Jenis: " +
-      jenisBackup +
-      "\n" +
-
-      "Jumlah file: " +
-      berhasil
-
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    alert(
-      "Gagal membuat file ZIP."
-    );
-
-  }
 }
 
 
