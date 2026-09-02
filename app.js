@@ -27,6 +27,9 @@ const supabaseClient =
 // PENGATURAN AKUN
 // ========================================
 
+const EMAIL_ADMIN =
+  "tbtimur19@gmail.com";
+
 const EMAIL_PETUGAS =
   "tbtmr5757@gmail.com";
 
@@ -41,9 +44,26 @@ let rolePengguna = "";
 
 function tentukanRole(email) {
 
+  if (!email) {
+    return "";
+  }
+
+  const emailBersih =
+    email.trim().toLowerCase();
+
+
   if (
-    email &&
-    email.toLowerCase() ===
+    emailBersih ===
+    EMAIL_ADMIN.toLowerCase()
+  ) {
+
+    return "admin";
+
+  }
+
+
+  if (
+    emailBersih ===
     EMAIL_PETUGAS.toLowerCase()
   ) {
 
@@ -51,7 +71,8 @@ function tentukanRole(email) {
 
   }
 
-  return "admin";
+
+  return "";
 
 }
 
@@ -126,6 +147,26 @@ async function login() {
       tentukanRole(
         penggunaSekarang.email
       );
+
+
+    // ====================================
+    // CEK EMAIL YANG DIIZINKAN
+    // ====================================
+
+    if (!rolePengguna) {
+
+      await supabaseClient.auth.signOut();
+
+      penggunaSekarang = null;
+
+      rolePengguna = "";
+
+      pesan.textContent =
+        "Akun Anda belum memiliki izin akses.";
+
+      return;
+
+    }
 
 
     console.log(
@@ -233,6 +274,23 @@ async function cekLogin() {
         tentukanRole(
           penggunaSekarang.email
         );
+
+
+      // ==================================
+      // JIKA AKUN TIDAK DIIZINKAN
+      // ==================================
+
+      if (!rolePengguna) {
+
+        await supabaseClient.auth.signOut();
+
+        penggunaSekarang = null;
+
+        rolePengguna = "";
+
+        return;
+
+      }
 
 
       console.log(
