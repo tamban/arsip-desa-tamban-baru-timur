@@ -27,9 +27,6 @@ const supabaseClient =
 // PENGATURAN AKUN
 // ========================================
 
-const EMAIL_ADMIN =
-  "tbtimur19@gmail.com";
-
 const EMAIL_PETUGAS =
   "tbtmr5757@gmail.com";
 
@@ -44,26 +41,9 @@ let rolePengguna = "";
 
 function tentukanRole(email) {
 
-  if (!email) {
-    return "";
-  }
-
-  const emailBersih =
-    email.trim().toLowerCase();
-
-
   if (
-    emailBersih ===
-    EMAIL_ADMIN.toLowerCase()
-  ) {
-
-    return "admin";
-
-  }
-
-
-  if (
-    emailBersih ===
+    email &&
+    email.toLowerCase() ===
     EMAIL_PETUGAS.toLowerCase()
   ) {
 
@@ -71,8 +51,7 @@ function tentukanRole(email) {
 
   }
 
-
-  return "";
+  return "admin";
 
 }
 
@@ -147,26 +126,6 @@ async function login() {
       tentukanRole(
         penggunaSekarang.email
       );
-
-
-    // ====================================
-    // CEK EMAIL YANG DIIZINKAN
-    // ====================================
-
-    if (!rolePengguna) {
-
-      await supabaseClient.auth.signOut();
-
-      penggunaSekarang = null;
-
-      rolePengguna = "";
-
-      pesan.textContent =
-        "Akun Anda belum memiliki izin akses.";
-
-      return;
-
-    }
 
 
     console.log(
@@ -274,23 +233,6 @@ async function cekLogin() {
         tentukanRole(
           penggunaSekarang.email
         );
-
-
-      // ==================================
-      // JIKA AKUN TIDAK DIIZINKAN
-      // ==================================
-
-      if (!rolePengguna) {
-
-        await supabaseClient.auth.signOut();
-
-        penggunaSekarang = null;
-
-        rolePengguna = "";
-
-        return;
-
-      }
 
 
       console.log(
@@ -746,10 +688,6 @@ async function uploadDokumen() {
 
   try {
 
-    // ====================================
-    // GOOGLE DRIVE
-    // ====================================
-
     const drive =
       await uploadKeGoogleDrive(
         file,
@@ -762,10 +700,6 @@ async function uploadDokumen() {
       drive
     );
 
-
-    // ====================================
-    // SIMPAN ID ASLI KE SUPABASE
-    // ====================================
 
     const database =
       await supabaseClient
@@ -1056,10 +990,6 @@ function tampilkanDaftar(
         "document-item";
 
 
-      // ----------------------------------
-      // INFORMASI
-      // ----------------------------------
-
       const info =
         document.createElement(
           "div"
@@ -1102,10 +1032,6 @@ function tampilkanDaftar(
       );
 
 
-      // ----------------------------------
-      // TOMBOL BUKA
-      // ----------------------------------
-
       const tombolBuka =
         document.createElement(
           "button"
@@ -1125,10 +1051,6 @@ function tampilkanDaftar(
 
         };
 
-
-      // ----------------------------------
-      // TOMBOL DOWNLOAD
-      // ----------------------------------
 
       const tombolDownload =
         document.createElement(
@@ -1164,10 +1086,6 @@ function tampilkanDaftar(
         tombolDownload
       );
 
-
-      // ----------------------------------
-      // TOMBOL HAPUS ADMIN
-      // ----------------------------------
 
       if (
         rolePengguna ===
@@ -1263,10 +1181,6 @@ async function bukaDokumen(
   }
 
 
-  // ====================================
-  // SUPABASE LAMA
-  // ====================================
-
   try {
 
     const hasil =
@@ -1358,10 +1272,6 @@ async function downloadDokumen(
 
   }
 
-
-  // ====================================
-  // SUPABASE LAMA
-  // ====================================
 
   try {
 
@@ -1479,10 +1389,6 @@ async function hapusDokumen(
   }
 
 
-  // ====================================
-  // GOOGLE DRIVE
-  // ====================================
-
   if (
     apakahGoogleDrive(
       filePath
@@ -1536,10 +1442,6 @@ async function hapusDokumen(
 
       }
 
-
-      // --------------------------------
-      // HAPUS DATA SUPABASE
-      // --------------------------------
 
       const database =
         await supabaseClient
@@ -1602,10 +1504,6 @@ async function hapusDokumen(
 
   }
 
-
-  // ====================================
-  // SUPABASE LAMA
-  // ====================================
 
   try {
 
@@ -1839,20 +1737,6 @@ async function tampilkanKategori(
 
 async function backupArsip() {
 
-  if (
-    typeof JSZip ===
-    "undefined"
-  ) {
-
-    alert(
-      "Library ZIP belum tersedia."
-    );
-
-    return;
-
-  }
-
-
   const tahun =
     prompt(
       "Masukkan tahun arsip yang ingin dibackup:\n\nContoh: 2025"
@@ -1912,27 +1796,23 @@ async function backupArsip() {
   }
 
 
-  let folderBackup =
-    null;
-
-  let namaBackup =
-    "Arsip";
-
-  let jenisBackup =
-    "Semua Arsip";
+  let kategori;
 
 
   if (
+    pilihan === "1"
+  ) {
+
+    kategori =
+      "Semua Arsip";
+
+  }
+
+  else if (
     pilihan === "2"
   ) {
 
-    folderBackup =
-      "Foto Dokumentasi";
-
-    namaBackup =
-      "Foto";
-
-    jenisBackup =
+    kategori =
       "Foto Saja";
 
   }
@@ -1941,13 +1821,7 @@ async function backupArsip() {
     pilihan === "3"
   ) {
 
-    folderBackup =
-      "PDF";
-
-    namaBackup =
-      "PDF";
-
-    jenisBackup =
+    kategori =
       "PDF Saja";
 
   }
@@ -1956,13 +1830,7 @@ async function backupArsip() {
     pilihan === "4"
   ) {
 
-    folderBackup =
-      "Word";
-
-    namaBackup =
-      "Word";
-
-    jenisBackup =
+    kategori =
       "Word Saja";
 
   }
@@ -1971,20 +1839,12 @@ async function backupArsip() {
     pilihan === "5"
   ) {
 
-    folderBackup =
-      "Excel";
-
-    namaBackup =
-      "Excel";
-
-    jenisBackup =
+    kategori =
       "Excel Saja";
 
   }
 
-  else if (
-    pilihan !== "1"
-  ) {
+  else {
 
     alert(
       "Pilihan tidak valid."
@@ -1995,97 +1855,27 @@ async function backupArsip() {
   }
 
 
-  let query =
-    supabaseClient
-      .from("documents")
-      .select("*")
-      .ilike(
-        "name",
-        tahunBersih +
-        "_%"
-      );
-
-
-  if (
-    folderBackup !==
-    null
-  ) {
-
-    query =
-      query.eq(
-        "folder",
-        folderBackup
-      );
-
-  }
-
-
-  const hasil =
-    await query.order(
-      "created_at",
-      {
-        ascending:
-          true
-      }
-    );
-
-
-  if (
-    hasil.error
-  ) {
-
-    console.error(
-      hasil.error
-    );
-
-    alert(
-      "Gagal mengambil data arsip."
-    );
-
-    return;
-
-  }
-
-
-  if (
-    !hasil.data ||
-    hasil.data.length === 0
-  ) {
-
-    alert(
-      "Tidak ditemukan arsip tahun " +
-      tahunBersih +
-      "."
-    );
-
-    return;
-
-  }
-
-
-  const lanjut =
+  const yakin =
     confirm(
 
-      "Ditemukan " +
-      hasil.data.length +
-      " file.\n\n" +
+      "Backup akan dibuat dengan pilihan:\n\n" +
 
       "Tahun: " +
       tahunBersih +
       "\n" +
 
       "Jenis: " +
-      jenisBackup +
+      kategori +
       "\n\n" +
 
-      "Backup Google Drive akan kita aktifkan pada tahap berikutnya.\n\n" +
-
-      "Lanjut?"
+      "Lanjut membuat backup ZIP?"
 
     );
 
 
-  if (!lanjut) {
+  if (
+    !yakin
+  ) {
 
     return;
 
@@ -2093,8 +1883,115 @@ async function backupArsip() {
 
 
   alert(
-    "Fungsi backup Google Drive belum diaktifkan pada tahap ini."
+    "⏳ Backup sedang dibuat.\n\n" +
+    "Mohon tunggu..."
   );
+
+
+  try {
+
+    console.log(
+      "📦 Memulai backup..."
+    );
+
+
+    const hasil =
+      await kirimKeGoogleDrive({
+
+        action:
+          "backup",
+
+        tahun:
+          tahunBersih,
+
+        kategori:
+          kategori
+
+      });
+
+
+    console.log(
+      "Hasil backup:",
+      hasil
+    );
+
+
+    if (
+      !hasil ||
+      !hasil.success
+    ) {
+
+      throw new Error(
+
+        hasil && hasil.error
+          ? hasil.error
+          : "Backup gagal dibuat."
+
+      );
+
+    }
+
+
+    if (
+      !hasil.url
+    ) {
+
+      throw new Error(
+        "URL download backup tidak tersedia."
+      );
+
+    }
+
+
+    const lanjutDownload =
+      confirm(
+
+        "✅ Backup berhasil dibuat!\n\n" +
+
+        "Nama file: " +
+        hasil.fileName +
+        "\n" +
+
+        "Jumlah file: " +
+        hasil.jumlahFile +
+        "\n\n" +
+
+        "Download ZIP sekarang?"
+
+      );
+
+
+    if (
+      lanjutDownload
+    ) {
+
+      window.open(
+        hasil.url,
+        "_blank"
+      );
+
+    }
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "BACKUP ERROR:",
+      error
+    );
+
+
+    alert(
+
+      "❌ Backup gagal.\n\n" +
+
+      error.message
+
+    );
+
+  }
 
 }
 
